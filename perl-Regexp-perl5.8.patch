@@ -1,0 +1,158 @@
+--- Regexp-0.004/Regexp.xs.orig	1997-04-14 15:55:18.000000000 +0200
++++ Regexp-0.004/Regexp.xs	2003-06-18 18:05:57.000000000 +0200
+@@ -21,7 +21,7 @@
+ #define PerlIO_stderr() stderr
+ #endif
+ 
+-#define DEFAULT_SCALAR GvSV(defgv)
++#define DEFAULT_SCALAR GvSV(PL_defgv)
+ 
+ #define Const_FOLD()	   (PMf_FOLD)
+ #define Const_SINGLELINE() (PMf_SINGLELINE)
+@@ -96,7 +96,7 @@
+ 	sv_setpvn(ST(0), re->precomp, re->prelen);
+     }
+     else
+-	ST(0) = &sv_undef;
++	ST(0) = &PL_sv_undef;
+ 
+     XSRETURN(1);
+ }
+@@ -108,25 +108,25 @@
+ PPCODE:
+ {
+     if (items == 2) {
+-	if(index >= 0 && index <= re->nparens && re->startp[index] != Nullch) {
++	if(index >= 0 && index <= re->nparens && re->startp[index] != -1) {
+ 	    ST(0) = sv_newmortal();
+-	    sv_setpvn(ST(0),re->startp[index],
++	    sv_setpvn(ST(0),re->subbeg + re->startp[index],
+ 		re->endp[index] - re->startp[index]);
+ 	}
+ 	else
+-	    ST(0) = &sv_undef;
++	    ST(0) = &PL_sv_undef;
+ 	XSRETURN(1);
+     }
+     else if (GIMME & G_ARRAY) {
+ 	int i;
+ 	for (i=1; i <= re->nparens; i++) {
+ 	    SV *sv;
+-	    if(re->startp[i]) {
++	    if(re->startp[i] != -1) {
+ 		sv = sv_newmortal();
+-		sv_setpvn(sv,re->startp[i],re->endp[i] - re->startp[i]);
++		sv_setpvn(sv,re->subbeg + re->startp[i],re->endp[i] - re->startp[i]);
+ 	    }
+ 	    else
+-		sv = &sv_undef;
++		sv = &PL_sv_undef;
+ 
+ 	    XPUSHs(sv);
+ 	}
+@@ -142,12 +142,12 @@
+     regexp *	re
+ PPCODE:
+ {
+-    if(re->startp[0]) {
++    if(re->startp[0] != -1) {
+ 	ST(0) = sv_newmortal();
+-	sv_setpvn(ST(0),re->subbeg,re->startp[0] - re->subbeg);
++	sv_setpvn(ST(0),re->subbeg,re->startp[0]);
+     }
+     else
+-	ST(0) = &sv_undef;
++	ST(0) = &PL_sv_undef;
+     XSRETURN(1);
+ }
+ 
+@@ -158,10 +158,10 @@
+ {
+     if(re->startp[0]) {
+ 	ST(0) = sv_newmortal();
+-	sv_setpvn(ST(0),re->endp[0],re->subend - re->endp[0]);
++	sv_setpvn(ST(0),re->subbeg + re->endp[0],re->sublen - re->endp[0]);
+     }
+     else
+-	ST(0) = &sv_undef;
++	ST(0) = &PL_sv_undef;
+     XSRETURN(1);
+ }
+ 
+@@ -172,10 +172,10 @@
+ {
+     if(re->startp[0]) {
+ 	ST(0) = sv_newmortal();
+-	sv_setpvn(ST(0),re->startp[0],re->endp[0] - re->startp[0]);
++	sv_setpvn(ST(0),re->subbeg + re->startp[0],re->endp[0] - re->startp[0]);
+     }
+     else
+-	ST(0) = &sv_undef;
++	ST(0) = &PL_sv_undef;
+     XSRETURN(1);
+ }
+ 
+@@ -192,7 +192,7 @@
+     regexp *	re
+ PPCODE:
+ {
+-    XSRETURN_IV(re->endp[0] - re->subbeg);
++    XSRETURN_IV(re->endp[0]);
+ }
+ 
+ void
+@@ -200,7 +200,7 @@
+     regexp *	re
+ PPCODE:
+ {
+-    XSRETURN_IV(re->startp[0] - re->subbeg);
++    XSRETURN_IV(re->startp[0]);
+ }
+ 
+ regexp *
+@@ -232,8 +232,9 @@
+     STRLEN len;
+     char *ptr = SvPV(string,len);
+     int matches = 0;
++    SV dummy = { 0 };
+ 
+-    while (pregexec(re,ptr+offset,ptr+len,ptr,0,Nullsv,1)) {
++    while (pregexec(re,ptr+offset,ptr+len,ptr,0,&dummy,1)) {
+ 	if (GIMME & G_ARRAY) {
+ 	    int i;
+ 
+@@ -242,13 +243,13 @@
+ 	    EXTEND(sp, re->nparens);
+ 
+ 	    for (i=1; i <= re->nparens; i++) {
+-		if (re->endp[i]) {
++		if (re->endp[i] != -1) {
+ 		    SV *sv = sv_newmortal();
+-		    sv_setpvn(sv, re->startp[i], re->endp[i] - re->startp[i]);
++		    sv_setpvn(sv, re->subbeg + re->startp[i], re->endp[i] - re->startp[i]);
+ 		    XPUSHs(sv);
+ 		}
+ 		else {
+-		    XPUSHs(&sv_undef);
++		    XPUSHs(&PL_sv_undef);
+ 		}
+ 	    }
+ 	}
+@@ -259,7 +260,7 @@
+ 	if(!(flags & PMf_GLOBAL))
+ 	    break;
+ 
+-	offset = re->endp[0] - re->subbeg;
++	offset = re->endp[0];
+     }
+ 
+     if (GIMME & G_ARRAY) {
+@@ -306,7 +307,7 @@
+     char *	class
+ PPCODE:
+ {
+-    regexp *re = (curpm) ? curpm->op_pmregexp : NULL;
++    regexp *re = (PL_curpm) ? PM_GETRE(PL_curpm) : NULL;
+ 
+     ST(0) = sv_newmortal();
+     sv_setref_iv(ST(0), class, (IV) re);
