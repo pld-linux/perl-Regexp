@@ -3,7 +3,7 @@
 %bcond_without	tests	# do not perform "make test"
 #
 %include	/usr/lib/rpm/macros.perl
-%define	pdir	Regexp
+%define		pdir	Regexp
 Summary:	Regexp Perl module - object-oriented interface to regexp code
 Summary(pl):	Modu³ Perla Regexp - obiektowy interfejs do wyra¿eñ regularnych
 Name:		perl-Regexp
