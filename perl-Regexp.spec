@@ -8,14 +8,14 @@ Summary:	Regexp Perl module - object-oriented interface to regexp code
 Summary(pl):	Modu³ Perla Regexp - obiektowy interfejs do wyra¿eñ regularnych
 Name:		perl-Regexp
 Version:	0.004
-Release:	1
+Release:	2
 # same as perl
 License:	GPL v1+ or Artistic
 Group:		Development/Languages/Perl
 Source0:	http://www.cpan.org/modules/by-module/%{pdir}/%{pdir}-%{version}.tar.gz
 # Source0-md5:	c3be11e25ec4a0cffdb163e91a10f74e
 Patch0:		%{name}-perl5.8.patch
-BuildRequires:	perl >= 5.8.0
+BuildRequires:	perl-devel >= 1:5.8.0
 BuildRequires:	rpm-perlprov >= 4.1-13
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
