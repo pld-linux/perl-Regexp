@@ -4,8 +4,8 @@
 #
 %include	/usr/lib/rpm/macros.perl
 %define	pdir	Regexp
-Summary:	Regexp perl module - object-oriented interface to regexp code
-Summary(pl):	Modu³ perla Regexp - obiektowy interfejs do wyra¿eñ regularnych
+Summary:	Regexp Perl module - object-oriented interface to regexp code
+Summary(pl):	Modu³ Perla Regexp - obiektowy interfejs do wyra¿eñ regularnych
 Name:		perl-Regexp
 Version:	0.004
 Release:	1
