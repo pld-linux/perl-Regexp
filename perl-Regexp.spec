@@ -9,6 +9,7 @@ Summary(pl):	Modu³ Perla Regexp - obiektowy interfejs do wyra¿eñ regularnych
 Name:		perl-Regexp
 Version:	0.004
 Release:	1
+# same as perl
 License:	GPL v1+ or Artistic
 Group:		Development/Languages/Perl
 Source0:	http://www.cpan.org/modules/by-module/%{pdir}/%{pdir}-%{version}.tar.gz
