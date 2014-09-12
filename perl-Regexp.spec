@@ -55,6 +55,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc README
 %{perl_vendorarch}/Regexp.pm
 # %{perl_vendorarch}/auto/Regexp dir shared with other arch-dep. Regexp::*
-%{perl_vendorarch}/auto/Regexp/Regexp.bs
 %attr(755,root,root) %{perl_vendorarch}/auto/Regexp/Regexp.so
 %{_mandir}/man3/*
