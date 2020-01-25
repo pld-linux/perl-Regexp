@@ -2,7 +2,6 @@
 # Conditional build:
 %bcond_without	tests	# do not perform "make test"
 #
-%include	/usr/lib/rpm/macros.perl
 %define		pdir	Regexp
 Summary:	Regexp Perl module - object-oriented interface to regexp code
 Summary(pl.UTF-8):	Moduł Perla Regexp - obiektowy interfejs do wyrażeń regularnych
